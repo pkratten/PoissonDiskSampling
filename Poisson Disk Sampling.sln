@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30330.147
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poisson Disk Sampling", "Poisson Disk Sampling\Poisson Disk Sampling.csproj", "{B9A01676-3C1A-4D80-926D-A3D3CFCB1AF9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B9A01676-3C1A-4D80-926D-A3D3CFCB1AF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9A01676-3C1A-4D80-926D-A3D3CFCB1AF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9A01676-3C1A-4D80-926D-A3D3CFCB1AF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9A01676-3C1A-4D80-926D-A3D3CFCB1AF9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F11DFD63-58F5-44E6-9EC2-40779468DD3E}
+	EndGlobalSection
+EndGlobal
