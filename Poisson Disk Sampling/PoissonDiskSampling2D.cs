@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Grasshopper.Kernel;
@@ -128,6 +129,8 @@ namespace Poisson_Disk_Sampling
 
         List<Point3d> Sample(Curve curve, double distance, int seed, bool random)
         {
+            if (distance <= 0) return null;
+
             Plane plane;
             curve.TryGetPlane(out plane);
 
@@ -187,23 +190,33 @@ namespace Poisson_Disk_Sampling
             if (valid) samples.Add(sample);
 
             if (cell.X.Length < cellMinimum) return;
-            List<Task> tasks = new List<Task>(4);
+
+            List<Box> newCells = new List<Box>();
             for (double u = 0; u < 1; u+=0.5)
             {
                 for (double v = 0; v < 1; v+= 0.5)
                 {
                     Box newCell = new Box(cell.Plane, new Point3d[] { cell.PointAt(u, v, 0), cell.PointAt(u + 0.5, v + 0.5, 0) });
-                    SampleCellArguments newArguments = new SampleCellArguments(newCell, depth + 1);
-
-                    if (this.random)
-                    {
-                        Task task = new Task(new Action<object>(SampleCell), newArguments);
-                        tasks.Add(task);
-                        task.Start();
-                    }
-                    else { SampleCell(newArguments); }
+                    newCells.Add(newCell);
                 }
             }
+
+            List<Task> tasks = new List<Task>(4);
+            for (int i = 3; i >= 0; i--)
+            {
+                Box newCell = newCells[random.Next(i)];
+                newCells.Remove(newCell);
+                SampleCellArguments newArguments = new SampleCellArguments(newCell, depth + 1);
+
+                if (this.random)
+                {
+                    Task task = new Task(new Action<object>(SampleCell), newArguments);
+                    tasks.Add(task);
+                    task.Start();
+                }
+                else { SampleCell(newArguments); }
+            }
+
             foreach (Task task in tasks)
             {
                 task.Wait();
