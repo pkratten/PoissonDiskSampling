@@ -89,11 +89,18 @@ namespace Poisson_Disk_Sampling
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Please choose a valid selection of randomness.");
             }
+            bool cancel = false;
             if(!curve.IsPlanar())
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Curve is not planar!");
-                return;
+                cancel = true;
             }
+            if(!curve.IsClosed)
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Curve is not closed!");
+                cancel = true;
+            }
+            if (cancel) return;
 
             List<Point3d> samples;
             if (random == 1) { samples = SampleRandom(curve, distance, seed); }
