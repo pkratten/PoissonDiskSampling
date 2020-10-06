@@ -145,9 +145,10 @@ namespace Poisson_Disk_Sampling
 
             Box box = new Box(plane, curve);
 
-            double cellLength = box.X.Length > box.Y.Length ? box.X.Length : box.Y.Length;
+            //double cellLength = box.X.Length > box.Y.Length ? box.X.Length : box.Y.Length;
 
-            Box cell = new Box(box.Plane, new Interval(box.X.Min, box.X.Min + cellLength), new Interval(box.Y.Min, box.Y.Min + cellLength), new Interval());
+            //Box cell = new Box(box.Plane, new Interval(box.X.Min, box.X.Min + cellLength), new Interval(box.Y.Min, box.Y.Min + cellLength), new Interval());
+            Box cell = new Box(box.Plane, box.X, box.Y, new Interval());
 
             samples = new ConcurrentBag<Point3d>();
             boundary = curve;
@@ -158,11 +159,6 @@ namespace Poisson_Disk_Sampling
             this.random = random;
 
             SampleCell(new SampleCellArguments(cell, 0));
-
-            foreach (Point3d point in samples)
-            {
-                point.Transform(Transform.PlaneToPlane(Plane.WorldXY, plane));
-            }
 
             return new List<Point3d>(samples);
         }
@@ -211,7 +207,7 @@ namespace Poisson_Disk_Sampling
             }
 
             List<Task> tasks = new List<Task>(4);
-            for (int i = 3; i >= 0; i--)
+            for (int i = newCells.Count - 1; i >= 0; i--)
             {
                 Box newCell = newCells[random.Next(i)];
                 newCells.Remove(newCell);
