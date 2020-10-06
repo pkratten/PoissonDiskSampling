@@ -19,7 +19,7 @@ using Rhino.Render.UI;
 
 namespace Poisson_Disk_Sampling
 {
-    public class PoissonDiskSampling3D : GH_Component
+    public class PoissonSphereSampling3D : GH_Component
     {
         /// <summary>
         /// Each implementation of GH_Component must provide a public 
@@ -28,7 +28,7 @@ namespace Poisson_Disk_Sampling
         /// Subcategory the panel. If you use non-existing tab or panel names, 
         /// new tabs/panels will automatically be created.
         /// </summary>
-        public PoissonDiskSampling3D()
+        public PoissonSphereSampling3D()
           : base("Poisson Sphere Sampling 3D", "Poisson",
               "Sample points inside a curve with the poisson sphere sampling method.",
               "Vector", "Grid")
