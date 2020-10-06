@@ -73,9 +73,9 @@ namespace Poisson_Disk_Sampling.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap PoissonDiskSampling3D {
+        internal static System.Drawing.Bitmap PoissonSphereSampling3D {
             get {
-                object obj = ResourceManager.GetObject("PoissonDiskSampling3D", resourceCulture);
+                object obj = ResourceManager.GetObject("PoissonSphereSampling3D", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

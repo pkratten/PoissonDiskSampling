@@ -29,8 +29,8 @@ namespace Poisson_Disk_Sampling
         /// new tabs/panels will automatically be created.
         /// </summary>
         public PoissonSphereSampling3D()
-          : base("Poisson Sphere Sampling 3D", "Poisson",
-              "Sample points inside a curve with the poisson sphere sampling method.",
+          : base("Poisson Sphere Sampling 3D", "Poisson 3D",
+              "Sample points inside a brep with the poisson sphere sampling method.",
               "Vector", "Grid")
         {
         }
@@ -243,7 +243,7 @@ namespace Poisson_Disk_Sampling
             {
                 // You can add image files to your project resources and access them like this:
                 //return Resources.IconForThisComponent;
-                return Properties.Resources.PoissonDiskSampling3D;
+                return Properties.Resources.PoissonSphereSampling3D;
                 //return null;
             }
         }

@@ -29,7 +29,7 @@ namespace Poisson_Disk_Sampling
         /// new tabs/panels will automatically be created.
         /// </summary>
         public PoissonDiskSampling2D()
-          : base("Poisson Disk Sampling 2D", "Poisson",
+          : base("Poisson Disk Sampling 2D", "Poisson 2D",
               "Sample points inside a curve with the poisson disk sampling method.",
               "Vector", "Grid")
         {

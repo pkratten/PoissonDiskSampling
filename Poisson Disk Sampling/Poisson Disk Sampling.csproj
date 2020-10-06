@@ -56,7 +56,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PoissonDiskSampling3D.cs" />
+    <Compile Include="PoissonSphereSampling3D.cs" />
     <Compile Include="PoissonDiskSampling2D.cs" />
     <Compile Include="PoissonDiskSamplingInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -68,7 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="PoissonDiskSampling2D.png" />
-    <Content Include="PoissonDiskSampling3D.png" />
+    <Content Include="PoissonSphereSampling3D.png" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
