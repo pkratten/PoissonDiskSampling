@@ -121,4 +121,7 @@
   <data name="PoissonDiskSampling2D" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\poissondisksampling2d.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="PoissonDiskSampling3D" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\poissondisksampling3d.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
 </root>
