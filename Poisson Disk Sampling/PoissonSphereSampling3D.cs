@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using Grasshopper.Kernel;
+﻿using Grasshopper.Kernel;
 using Grasshopper.Kernel.Parameters;
 using Rhino;
-using Rhino.Display;
-using Rhino.DocObjects;
 using Rhino.Geometry;
-using Rhino.Render.UI;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 // In order to load the result of this wizard, you will also need to
 // add the output bin/ folder of this project to the list of loaded
@@ -44,7 +39,7 @@ namespace Poisson_Disk_Sampling
         {
             Param.Brep = pManager.AddBrepParameter("Boundary Brep", "B", "The outer boundary to sample points in.", GH_ParamAccess.item);
             Param.Distance = pManager.AddNumberParameter("Distance", "D", "The distance between points or the diameter of a sphere.", GH_ParamAccess.item);
-            Param.Seed = pManager.AddIntegerParameter("Seed", "S", "The seed that for random generation of the points.", GH_ParamAccess.item);
+            Param.Seed = pManager.AddIntegerParameter("Seed", "S", "The seed that for the random generation of the points.", GH_ParamAccess.item);
             Param.Random = pManager.AddIntegerParameter("Random", "R", "Should the generation be truly random or deterministic?", GH_ParamAccess.item, 0);
 
             Param_Integer paramRandom = pManager[3] as Param_Integer;
@@ -84,18 +79,18 @@ namespace Poisson_Disk_Sampling
             if (!DA.GetData(Param.Distance, ref distance)) return;
             DA.GetData(Param.Seed, ref seed);
             DA.GetData(Param.Random, ref random);
-            
-            if(random != 0 && random != 1)
+
+            if (random != 0 && random != 1)
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Please choose a valid selection of randomness.");
             }
             bool cancel = false;
-            if(!brep.IsValid)
+            if (!brep.IsValid)
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Brep is not valid!");
                 cancel = true;
             }
-            if(!brep.IsSolid)
+            if (!brep.IsSolid)
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Brep is not a solid!");
                 cancel = true;
@@ -154,7 +149,7 @@ namespace Poisson_Disk_Sampling
             boundary = brep;
             this.distance = distance;
             distanceSquared = distance * distance;
-            cellMinimum = (distance/2)/Math.Sqrt(2);
+            cellMinimum = (distance / 2) / Math.Sqrt(2);
             this.seed = seed;
             this.random = random;
 
@@ -176,7 +171,7 @@ namespace Poisson_Disk_Sampling
             bool valid = true;
 
             if (sample.DistanceTo(boundary.ClosestPoint(sample)) < distance / 2) valid = false;
-            if(valid)
+            if (valid)
             {
                 if (!boundary.IsPointInside(sample, RhinoDoc.ActiveDoc.ModelAbsoluteTolerance, true)) valid = false;
             }
@@ -209,7 +204,7 @@ namespace Poisson_Disk_Sampling
             }
 
             List<Task> tasks = new List<Task>(4);
-            for (int i = newCells.Count-1; i >= 0; i--)
+            for (int i = newCells.Count - 1; i >= 0; i--)
             {
                 Box newCell = newCells[random.Next(i)];
                 newCells.Remove(newCell);

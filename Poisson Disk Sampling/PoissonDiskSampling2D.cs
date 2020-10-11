@@ -1,16 +1,10 @@
-﻿using System;
+﻿using Grasshopper.Kernel;
+using Grasshopper.Kernel.Parameters;
+using Rhino.Geometry;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
-using Grasshopper.Kernel;
-using Grasshopper.Kernel.Parameters;
-using Rhino;
-using Rhino.Display;
-using Rhino.DocObjects;
-using Rhino.Geometry;
-using Rhino.Render.UI;
 
 // In order to load the result of this wizard, you will also need to
 // add the output bin/ folder of this project to the list of loaded
@@ -44,7 +38,7 @@ namespace Poisson_Disk_Sampling
         {
             Param.Curve = pManager.AddCurveParameter("Boundary curve", "C", "The outer boundary to sample points in.", GH_ParamAccess.item);
             Param.Distance = pManager.AddNumberParameter("Distance", "D", "The distance between points or the diameter of a disk.", GH_ParamAccess.item);
-            Param.Seed = pManager.AddIntegerParameter("Seed", "S", "The seed that for random generation of the points.", GH_ParamAccess.item);
+            Param.Seed = pManager.AddIntegerParameter("Seed", "S", "The seed that for the random generation of the points.", GH_ParamAccess.item);
             Param.Random = pManager.AddIntegerParameter("Random", "R", "Should the generation be truly random or deterministic?", GH_ParamAccess.item);
 
             Param_Integer paramRandom = pManager[3] as Param_Integer;
@@ -84,18 +78,18 @@ namespace Poisson_Disk_Sampling
             if (!DA.GetData(Param.Distance, ref distance)) return;
             DA.GetData(Param.Seed, ref seed);
             DA.GetData(Param.Random, ref random);
-            
-            if(random != 0 && random != 1)
+
+            if (random != 0 && random != 1)
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Please choose a valid selection of randomness.");
             }
             bool cancel = false;
-            if(!curve.IsPlanar())
+            if (!curve.IsPlanar())
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Curve is not planar!");
                 cancel = true;
             }
-            if(!curve.IsClosed)
+            if (!curve.IsClosed)
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Curve is not closed!");
                 cancel = true;
@@ -154,7 +148,7 @@ namespace Poisson_Disk_Sampling
             boundary = curve;
             this.distance = distance;
             distanceSquared = distance * distance;
-            cellMinimum = (distance/2)/Math.Sqrt(2);
+            cellMinimum = (distance / 2) / Math.Sqrt(2);
             this.seed = seed;
             this.random = random;
 
@@ -177,7 +171,7 @@ namespace Poisson_Disk_Sampling
             double t;
             boundary.ClosestPoint(sample, out t);
             if (sample.DistanceTo(boundary.PointAt(t)) < distance / 2) valid = false;
-            if(valid)
+            if (valid)
             {
                 if (boundary.Contains(sample, cell.Plane, Rhino.RhinoDoc.ActiveDoc.ModelAbsoluteTolerance) == PointContainment.Outside) valid = false;
             }
@@ -197,9 +191,9 @@ namespace Poisson_Disk_Sampling
             if (cell.X.Length < cellMinimum) return;
 
             List<Box> newCells = new List<Box>();
-            for (double u = 0; u < 1; u+=0.5)
+            for (double u = 0; u < 1; u += 0.5)
             {
-                for (double v = 0; v < 1; v+= 0.5)
+                for (double v = 0; v < 1; v += 0.5)
                 {
                     Box newCell = new Box(cell.Plane, new Point3d[] { cell.PointAt(u, v, 0), cell.PointAt(u + 0.5, v + 0.5, 0) });
                     newCells.Add(newCell);
