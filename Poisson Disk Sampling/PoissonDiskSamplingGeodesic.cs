@@ -32,8 +32,8 @@ namespace Poisson_Disk_Sampling
         {
             Param.Brep = pManager.AddBrepParameter("Brep", "B", "The object to sample points on.", GH_ParamAccess.item);
             Param.Distance = pManager.AddNumberParameter("Distance", "D", "The distasnce between points or the diameter of a disk.", GH_ParamAccess.item);
-            Param.K = pManager.AddIntegerParameter("Number of tries", "K", "Number of tries to sample a point per cell", GH_ParamAccess.item, 3);
-            Param.I = pManager.AddNumberParameter("Initial sample modifier", "I", "Modifier for the density of initial uniform random sample of points.", GH_ParamAccess.item, 1);
+            Param.K = pManager.AddIntegerParameter("Number of tries", "K", "Number of tries to sample a point per cell", GH_ParamAccess.item, 100);
+            Param.I = pManager.AddNumberParameter("Initial sample modifier", "I", "Modifier for the density of initial uniform random sample of points.", GH_ParamAccess.item, 10);
             Param.P = pManager.AddIntegerParameter("Number of phase groups per dimension", "P", "Number of phase groups per dimension. So the total phase groups will be P³. The minimum is 3.", GH_ParamAccess.item, 3);
             Param.Seed = pManager.AddIntegerParameter("Seed", "S", "The seed that for the random generation of the points.", GH_ParamAccess.item, 0);
 
@@ -98,6 +98,11 @@ namespace Poisson_Disk_Sampling
             if(P < 3)
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "P need to be at least 3!");
+                return;
+            }
+            if(P%2 == 0)
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "P needs to be an odd number!");
                 return;
             }
 
@@ -198,12 +203,13 @@ namespace Poisson_Disk_Sampling
             int nY = Convert.ToInt32(boundingBoxPoints.Y.Length / cellSize);
             int nZ = Convert.ToInt32(boundingBoxPoints.Z.Length / cellSize);
 
+            if (nX == 0) nX = 1;
+            if (nY == 0) nY = 1;
+            if (nZ == 0) nZ = 1;
+
             Box boundingBoxCells = new Box(boundingBoxPoints.Plane, new Interval(0, nX * cellSize), new Interval(0, nY * cellSize), new Interval(0, nZ * cellSize));
             boundingBoxCells.Transform(Transform.Translation(boundingBoxPoints.Center - boundingBoxCells.Center));
 
-            int nPhaseGroups = P * P * P;
-            int nCellsInPhaseGroups = (nX * nY * nZ) / nPhaseGroups;
-            List<ConcurrentBag<Cell>> phaseGroups = new List<ConcurrentBag<Cell>>(nPhaseGroups);
             Cell[,,] cells = new Cell[nX, nY, nZ];
 
             int nPhaseGroup = 0;
@@ -213,7 +219,6 @@ namespace Poisson_Disk_Sampling
                 {
                     for (int z = 0; z < P; z++)
                     {
-                        phaseGroups.Add(new ConcurrentBag<Cell>());
                         for (int px = x; px < nX; px += P)
                         {
                             for (int py = y; py < nY; py += P)
@@ -227,25 +232,9 @@ namespace Poisson_Disk_Sampling
                                     cell.PhaseGroup = nPhaseGroup;
                                     cells[px, py, pz] = cell;
 
-                                    tasks.Add(new Task(new Action(() =>
-                                    {
-                                        Point3d corner0 = boundingBoxCells.PointAt(cell.X / (double)nX, cell.Y / (double)nY, cell.Z / (double)nZ);
-                                        Point3d corner1 = corner0 + new Point3d(cellSize, cellSize, cellSize);
-                                        cell.Box = new Box(boundingBoxCells.Plane, new Point3d[2] { corner0, corner1 });
-                                        foreach (var point in initialPoints)
-                                        {
-                                            if (point.Cell.PhaseGroup > -1) continue;                                            
-                                            if(cell.Box.Contains(point.Position))
-                                            {
-                                                point.Cell = cell;
-                                                cell.InitialPoints.Add(point);
-                                            }
-                                        }
-                                        if(cell.InitialPoints.Count > 0)
-                                        {
-                                            phaseGroups[cell.PhaseGroup].Add(cell);
-                                        }
-                                    })));
+                                    Point3d corner0 = boundingBoxCells.PointAt(cell.X / (double)nX, cell.Y / (double)nY, cell.Z / (double)nZ);
+                                    Point3d corner1 = corner0 + new Point3d(cellSize, cellSize, cellSize);
+                                    cell.Box = new Box(boundingBoxCells.Plane, new Point3d[2] { corner0, corner1 });
                                 }
                             }
                         }
@@ -253,9 +242,46 @@ namespace Poisson_Disk_Sampling
                     }
                 }
             }
+
+
+
+
+            //Assign initial points to grid cells
+            int nPhaseGroups = P * P * P;
+            List<ConcurrentBag<Cell>> phaseGroups = new List<ConcurrentBag<Cell>>(nPhaseGroups);
+            for (int i = 0; i < nPhaseGroups; i++)
+            {
+                phaseGroups.Add(new ConcurrentBag<Cell>());
+            }
+
+            foreach (var point in initialPoints)
+            {
+                tasks.Add(new Task(new Action<object>((pointObj) =>
+                {
+                    Point currentPoint = (Point)pointObj;
+                    foreach (var cell in cells)
+                    {
+                        if (cell.Box.Contains(currentPoint.Position))
+                        {
+                            cell.InitialPoints.Add(currentPoint);
+                            if (!phaseGroups[cell.PhaseGroup].Contains(cell))
+                            {
+                                phaseGroups[cell.PhaseGroup].Add(cell);
+                                break;
+                            }
+                        }
+                    }
+                }), point));
+            }
             DoTasksParallel(tasks);
 
-
+            //currentPoint.Transform(Transform.PlaneToPlane(boundingBoxCells.Plane, Plane.WorldXY));
+            //int cellX = Convert.ToInt32(Math.Floor((currentPoint.X / boundingBoxCells.X.Length) * nX));
+            //int cellY = Convert.ToInt32(Math.Floor((currentPoint.Y / boundingBoxCells.Y.Length) * nY));
+            //int cellZ = Convert.ToInt32(Math.Floor((currentPoint.Z / boundingBoxCells.Z.Length) * nZ));
+            //Cell currentCell = cells[cellX, cellY, cellZ];
+            //currentCell.InitialPoints.Add((Point)point);
+            //phaseGroups[currentCell.PhaseGroup].Add(currentCell);
 
 
             //Parallel sampling
@@ -304,7 +330,9 @@ namespace Poisson_Disk_Sampling
                                 double c1 = point.normal * vector;
                                 double c2 = other.normal * vector;
 
-                                double distanceGeodesic = ((Math.Asin(c1) - Math.Asin(c2)) / c1 - c2) * distanceEuclidien;
+                                double distanceGeodesic = 0;
+                                if (c1 != c2) distanceGeodesic = ((Math.Asin(c1) - Math.Asin(c2)) / c1 - c2) * distanceEuclidien;
+                                else distanceGeodesic = distanceEuclidien / Math.Sqrt(1 - c1 * c1);
 
                                 if (distanceGeodesic < distance)
                                 {
