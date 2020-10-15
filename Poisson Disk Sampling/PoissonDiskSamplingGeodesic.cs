@@ -318,6 +318,7 @@ namespace Poisson_Disk_Sampling
                             }
 
                             Point point = cell.InitialPoints[i];
+                            if (point == null) return;
                             point.normal = brep.Faces[point.FaceID].NormalAt(point.PositionUV.X, point.PositionUV.Y);
 
                             nearPoints.Sort((x, y) =>
