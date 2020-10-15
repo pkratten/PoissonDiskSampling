@@ -247,33 +247,36 @@ namespace Poisson_Disk_Sampling
 
 
             //Assign initial points to grid cells
+            foreach (var point in initialPoints)
+            {
+                tasks.Add(new Task(new Action<object>((pointObj) =>
+                {
+                    Point currentPoint = (Point)pointObj;
+                    if (currentPoint == null) return;
+                    foreach (var cell in cells)
+                    {
+                        if (cell.Box.Contains(currentPoint.Position))
+                        {
+                            cell.InitialPoints.Add(currentPoint);
+                        }
+                    }
+                }), point));
+            }
+            DoTasksParallel(tasks);
+
+
+            //Get relevant cells into phase groups.
             int nPhaseGroups = P * P * P;
             List<ConcurrentBag<Cell>> phaseGroups = new List<ConcurrentBag<Cell>>(nPhaseGroups);
             for (int i = 0; i < nPhaseGroups; i++)
             {
                 phaseGroups.Add(new ConcurrentBag<Cell>());
             }
-
-            foreach (var point in initialPoints)
+            foreach (var cell in cells)
             {
-                tasks.Add(new Task(new Action<object>((pointObj) =>
-                {
-                    Point currentPoint = (Point)pointObj;
-                    foreach (var cell in cells)
-                    {
-                        if (cell.Box.Contains(currentPoint.Position))
-                        {
-                            cell.InitialPoints.Add(currentPoint);
-                            if (!phaseGroups[cell.PhaseGroup].Contains(cell))
-                            {
-                                phaseGroups[cell.PhaseGroup].Add(cell);
-                                break;
-                            }
-                        }
-                    }
-                }), point));
+                if(cell.InitialPoints.Count > 0) phaseGroups[cell.PhaseGroup].Add(cell);
             }
-            DoTasksParallel(tasks);
+
 
             //currentPoint.Transform(Transform.PlaneToPlane(boundingBoxCells.Plane, Plane.WorldXY));
             //int cellX = Convert.ToInt32(Math.Floor((currentPoint.X / boundingBoxCells.X.Length) * nX));
