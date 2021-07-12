@@ -9,6 +9,8 @@ using Grasshopper.Kernel.Geometry.Delaunay;
 using Rhino.Display;
 using Rhino.Geometry;
 
+//Based on https://graphics.cs.umass.edu/pubs/sa_2010.pdf
+
 namespace Poisson_Disk_Sampling
 {
     public class PoissonDiskSamplingGeodesic : GH_Component
